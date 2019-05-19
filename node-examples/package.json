@@ -1,9 +1,9 @@
 {
   "name": "examples",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node index",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +15,6 @@
   "bugs": {
     "url": "https://github.com/mateusrp44/Server-side-Development-with-NodeJS-Express-and-MongoDB/issues"
   },
-  "homepage": "https://github.com/mateusrp44/Server-side-Development-with-NodeJS-Express-and-MongoDB#readme"
+  "homepage": "https://github.com/mateusrp44/Server-side-Development-with-NodeJS-Express-and-MongoDB#readme",
+  "description": ""
 }
