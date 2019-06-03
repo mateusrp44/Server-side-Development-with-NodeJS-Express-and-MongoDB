@@ -17,7 +17,7 @@ const url = 'mongodb://localhost:27017/conFusion';
 const connect = mongoose.connect(url);
 
 connect.then((db) => {
-    console.log('Connected correctly to server');
+    console.log("Connected correctly to server");
 }, (err) => { console.log(err); });
 
 // view engine setup
@@ -61,6 +61,10 @@ if (app.get('env') === 'development') {
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
+    // next is the last argument in above function
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
     res.status(err.status || 500);
     res.render('error', {
         message: err.message,
