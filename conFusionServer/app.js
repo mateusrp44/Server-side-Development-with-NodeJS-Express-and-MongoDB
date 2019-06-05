@@ -10,6 +10,8 @@ var app = express();
 var dishRouter = require("./routes/dishRouter");
 var promoRouter = require("./routes/promoRouter");
 var leaderRouter = require("./routes/leaderRouter");
+var session = require("express-session");
+var FileStore = require("session-file-store")(session);
 
 const mongoose = require("mongoose");
 const Dishes = require("./models/dishes");
@@ -33,12 +35,23 @@ app.use(favicon());
 app.use(logger("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
-app.use(cookieParser('12345-67890-09876-54321'));
+// app.use(cookieParser('12345-67890-09876-54321'));
+
+app.use(
+  session({
+    name: "session-id",
+    secret: "12345-67890-09876-54321",
+    saveUninitialized: false,
+    resave: false,
+    store: new FileStore()
+  })
+);
 
 function auth(req, res, next) {
-  console.log(req.signedCookies);
-  if(!req.signedCookies.user) {
-     var authHeader = req.headers.authorization;
+  console.log(req.session);
+
+  if (!req.session.user) {
+    var authHeader = req.headers.authorization;
     if (!authHeader) {
       var err = new Error("You are not authenticated!");
       res.setHeader("WWW-Authenticate", "Basic");
@@ -46,28 +59,26 @@ function auth(req, res, next) {
       next(err);
       return;
     }
-
     var auth = new Buffer.from(authHeader.split(" ")[1], "base64")
       .toString()
       .split(":");
     var user = auth[0];
     var pass = auth[1];
     if (user == "admin" && pass == "password") {
-      res.cookie('user', 'admin', { signed: true })
+      req.session.user = "admin";
       next(); // authorized
-    } 
-    else {
+    } else {
       var err = new Error("You are not authenticated!");
       res.setHeader("WWW-Authenticate", "Basic");
       err.status = 401;
       next(err);
     }
-  }
-  else {
-    if(req.signedCookies.user === 'admin') next();
-    else {
+  } else {
+    if (req.session.user === "admin") {
+      console.log("req.session: ", req.session);
+      next();
+    } else {
       var err = new Error("You are not authenticated!");
-      res.setHeader("WWW-Authenticate", "Basic");
       err.status = 401;
       next(err);
     }
