@@ -19,6 +19,7 @@
     "mongoose": "^4.9.10",
     "mongoose-currency": "^0.2.0",
     "morgan": "^1.9.1",
+    "multer": "^1.4.1",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
