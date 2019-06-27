@@ -39,7 +39,7 @@ var options = {
 
 var secureServer = https.createServer(options, app);
 secureServer.listen(app.get('secPort'), () => {
-  console.log('Secure Server is listening on port ' + app.get('secPort'));
+  console.log(' Secure Server is listening on port ' + app.get('secPort') + '.');
 });
 
 secureServer.on('error', onError);
