@@ -7,28 +7,34 @@ const bodyParser    = require('body-parser');
 const session       = require('express-session');
 const passport      = require('passport');
 const authenticate  = require('./authenticate');
+const FileStore = require('session-file-store')(session);
+const cookieParser = require('cookie-parser');
 
 // Global Settings
 const config = require('./config');
 
 // Routers
-const index         = require('./routes/index');
-const users         = require('./routes/users');
-const dishRouter    = require('./routes/dishRouter');
-const promoRouter   = require('./routes/promoRouter');
-const leaderRouter  = require('./routes/leaderRouter');
-const uploadRouter  = require('./routes/uploadRouter');
+const index          = require('./routes/index');
+const users          = require('./routes/users');
+const dishRouter     = require('./routes/dishRouter');
+const promoRouter    = require('./routes/promoRouter');
+const leaderRouter   = require('./routes/leaderRouter');
+const uploadRouter   = require('./routes/uploadRouter');
+const favoriteRouter = require('./routes/favoriteRouter');
 
 // Mongoose Settings
 const mongoose      = require('mongoose');
 mongoose.Promise    = require('bluebird');
 const url           = config.mongoUrl;
 const options       = config.mongoOpts;
-const connect = mongoose.connect(url);
+const connect = mongoose.connect(url, {
+  useMongoClient: true,
+  /* other options */
+});
 
 connect.then(
   db => {
-    console.log("\n Connected correctly to server!\n\n Console log: \n");
+    console.log("\n Connected correctly to server!\n\n Output log: \n");
   },
   err => {
     console.log(err);
@@ -38,6 +44,7 @@ connect.then(
 // Application
 const app = express();
 
+// Secure traffic only
 app.all('*', (req, res, next) => {
     if (req.secure) return next();
     else res.redirect(307, 'https://' + req.hostname + ':' + app.get('secPort') + req.url);
@@ -54,9 +61,19 @@ app.use( logger('dev'));
 app.use( bodyParser.json());
 app.use( bodyParser.urlencoded({ extended: false }));
 app.use( express.static( path.join(__dirname, 'public')));
+//app.use(cookieParser('12345-67890-09876-54321'));
+
+/*app.use(session({
+   name: 'session-id',
+   secret: '12345-67890-09876-54321',
+   saveUninitialized: false,
+   resave: false,
+   store: new FileStore()
+}));*/
 
 // Authentication Middleware
 app.use( passport.initialize());
+// app.use(passport.session());
 
 // Mount Routes
 app.use('/', index);
@@ -65,6 +82,22 @@ app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);
 app.use('/leaders', leaderRouter);
 app.use('/imageUpload', uploadRouter);
+app.use('/favorite', favoriteRouter);
+
+/*function auth (req, res, next) {
+  console.log(req.user);
+  if (!req.user) {
+    var err = new Error('You are not authenticated!');
+    res.setHeader('WWW-Authenticate', 'Basic');                          
+    err.status = 401;
+    next(err);
+  }
+  else {
+      next();
+  }
+}
+
+app.use(auth);*/
 
 // Catch 404 and forwarding to error handler
 app.use(function(req, res, next) {
