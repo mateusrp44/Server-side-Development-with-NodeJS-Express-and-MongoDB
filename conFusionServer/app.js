@@ -1,7 +1,7 @@
 // Modules
 const express       = require('express');       
 const path          = require('path');
-const favicon       = require('serve-favicon');
+//const favicon       = require('serve-favicon');
 const logger        = require('morgan');
 const bodyParser    = require('body-parser');
 const session       = require('express-session');
@@ -63,6 +63,9 @@ app.use( bodyParser.urlencoded({ extended: false }));
 app.use( express.static( path.join(__dirname, 'public')));
 //app.use(cookieParser('12345-67890-09876-54321'));
 
+const cors = require("cors");
+app.use(cors());
+
 /*app.use(session({
    name: 'session-id',
    secret: '12345-67890-09876-54321',
@@ -82,7 +85,7 @@ app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);
 app.use('/leaders', leaderRouter);
 app.use('/imageUpload', uploadRouter);
-app.use('/favorite', favoriteRouter);
+app.use('/favorites', favoriteRouter);
 
 /*function auth (req, res, next) {
   console.log(req.user);

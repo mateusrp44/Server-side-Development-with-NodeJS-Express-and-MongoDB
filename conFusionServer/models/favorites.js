@@ -14,6 +14,6 @@ var favoriteSchema = new Schema({
     timestamps: true
 });
 
-var Favorites = mongoose.model('Favorite', favoriteSchema);
+var Favorites = mongoose.model('Favorites', favoriteSchema);
 
 module.exports = Favorites;

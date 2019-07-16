@@ -1,12 +1,14 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const Favorites = require('../models/favorite');
-const Dishes = require('../models/dishes');
-const cors = require('./cors');
-const favoriteRouter = express.Router();
 
+const mongoose = require('mongoose');
+
+const Favorites = require('../models/favorites');
+const Dishes = require('../models/dishes');
 var authenticate = require('../authenticate');
+const cors = require('./cors');
+
+const favoriteRouter = express.Router();
 
 favoriteRouter.use(bodyParser.json());
 
@@ -67,6 +69,7 @@ favoriteRouter.route('/')
 });
 
 favoriteRouter.route('/:dishId')
+.options(cors.corsWithOptions, (req, res) => { res.sendStatus(200); })
 .get(cors.cors, authenticate.verifyUser, (req,res,next) => {
     Favorites.findOne({user: req.user._id})
     .then((favorites) => {
@@ -131,10 +134,15 @@ favoriteRouter.route('/:dishId')
                 favorite.dishes.splice(index, 1);
                 favorite.save()
                 .then((favorite) => {
-                    console.log('Favorite Deleted ', favorite);
-                    res.statusCode = 200;
-                    res.setHeader('Content-Type', 'application/json');
-                    res.json(favorite);
+                    Favorites.findById(favorite._id)
+                    .populate('user')
+                    .populate('dishes')
+                    .then((favorite) => {
+                        console.log('Favorite Dish Deleted!', favorite);
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.json(favorite);
+                    })
                 }, (err) => next(err));
             }
             else {
@@ -151,5 +159,6 @@ favoriteRouter.route('/:dishId')
     }, (err) => next(err))
     .catch((err) => next(err));
 });
+
 
 module.exports = favoriteRouter;
